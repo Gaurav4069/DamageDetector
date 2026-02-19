@@ -52,7 +52,7 @@ const DetectDamage = () => {
                             <div className="md:w-1/2 flex flex-col items-center">
                                 <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full mb-2 self-start">Image {idx + 1}</span>
                                 <img
-                                    src={(img.annotated_url || img.original_url)?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', '')}
+                                    src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
                                     alt={`Damage Detection ${idx + 1}`}
                                     className="w-full max-h-80 object-contain rounded-lg shadow-sm border border-gray-100"
                                 />

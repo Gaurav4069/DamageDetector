@@ -26,7 +26,7 @@ const Chatbot = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/chat`, {
+            const response = await axios.post('http://localhost:5000/api/chat', {
                 message: userMsg
             });
             setMessages(prev => [...prev, { text: response.data.response, isBot: true }]);

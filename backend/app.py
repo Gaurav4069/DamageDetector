@@ -26,8 +26,7 @@ from damage_extractor_api import DamageExtractorAPI
 
 app = Flask(__name__)
 # Enable CORS for all domains on all routes, supporting credentials
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-CORS(app, resources={r"/api/*": {"origins": frontend_url}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
 # Database & Auth Config
 app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/damage_detector")
@@ -672,9 +671,5 @@ def analyze_assessment():
 # ---------------------------------------------------------
 # RUN SERVER
 # ---------------------------------------------------------
-# ---------------------------------------------------------
-# RUN SERVER
-# ---------------------------------------------------------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)

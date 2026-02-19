@@ -11,14 +11,13 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            const res = await axios.post(`${API_URL}/auth/login`, {
+            const res = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
                 password
             });
@@ -35,7 +34,7 @@ const Login = () => {
     const handleGoogleSuccess = async (credentialResponse) => {
         setLoading(true);
         try {
-            const res = await axios.post(`${API_URL}/auth/google`, {
+            const res = await axios.post('http://localhost:5000/api/auth/google', {
                 token: credentialResponse.credential
             });
             login(res.data.user, res.data.token);
