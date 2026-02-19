@@ -33,7 +33,7 @@ const AnalyzeSeverity = () => {
                         <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col items-center">
                             <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full mb-2">Image {index + 1}</span>
                             <img
-                                src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
+                                src={(img.annotated_url || img.original_url)?.replace((import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', ''), '')}
                                 alt={`Severity Analysis ${index + 1}`}
                                 className="w-full h-48 object-cover rounded-md shadow-sm mb-3"
                             />

@@ -22,7 +22,7 @@ const Dashboard = () => {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/api/analyze_assessment', formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/analyze_assessment`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
@@ -35,7 +35,7 @@ const Dashboard = () => {
             // Auto-save to history
             const token = localStorage.getItem('token');
             if (token) {
-                await axios.post('http://localhost:5000/api/history', {
+                await axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/history`, {
                     car_type: data.car_type,
                     severity: data.severity,
                     damaged_parts: data.damaged_parts,
@@ -131,7 +131,7 @@ const Dashboard = () => {
                                     {results.image_results.map((res, idx) => (
                                         <img
                                             key={idx}
-                                            src={res.original_url?.replace('http://localhost:5000', '')}
+                                            src={res.original_url?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', '')}
                                             alt={`Car ${idx}`}
                                             className="w-full h-24 object-cover rounded-md"
                                         />
@@ -160,7 +160,7 @@ const Dashboard = () => {
                                     {results.image_results.map((res, idx) => (
                                         <img
                                             key={idx}
-                                            src={(res.annotated_url || res.original_url)?.replace('http://localhost:5000', '')}
+                                            src={(res.annotated_url || res.original_url)?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', '')}
                                             alt={`Severity ${idx}`}
                                             className="w-full h-24 object-cover rounded-md"
                                         />
@@ -194,7 +194,7 @@ const Dashboard = () => {
                                     {results.image_results.map((res, idx) => (
                                         <img
                                             key={idx}
-                                            src={(res.annotated_url || res.original_url)?.replace('http://localhost:5000', '')}
+                                            src={(res.annotated_url || res.original_url)?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', '')}
                                             alt={`Damage ${idx}`}
                                             className="w-full h-24 object-cover rounded-md"
                                         />

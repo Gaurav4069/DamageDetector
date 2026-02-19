@@ -25,7 +25,7 @@ const Summary = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:5000/api/generate_suggestions', {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/generate_suggestions`, {
                 car_type: car_type,
                 severity: severity,
                 damaged_parts: damaged_parts, // Ensure backend handles list
@@ -58,10 +58,10 @@ const Summary = () => {
                                     image_results.map((img, idx) => (
                                         <div key={idx} className="relative group shrink-0">
                                             <img
-                                                src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
+                                                src={(img.annotated_url || img.original_url)?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', '')}
                                                 alt={`View ${idx + 1}`}
                                                 className="w-24 h-24 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
-                                                onClick={() => window.open((img.annotated_url || img.original_url)?.replace('http://localhost:5000', ''), '_blank')}
+                                                onClick={() => window.open((img.annotated_url || img.original_url)?.replace(import.meta.env.VITE_API_URL || 'http://localhost:5000/api', ''), '_blank')}
                                             />
                                             <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-[10px] p-1 rounded-b-lg text-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                 {img.car_type || 'Unknown'}
