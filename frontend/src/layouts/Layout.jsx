@@ -41,7 +41,7 @@ const Navbar = () => {
                         <ThemeToggle />
                         {user ? (
                             <div className="flex items-center space-x-4 ml-4">
-                                <span className="text-gray-700 dark:text-gray-300 text-sm">Welcome, {user.name}</span>
+                                <span className="text-gray-700 dark:text-gray-300 text-sm">Welcome {user?.name ? user.name.split(' ')[0] : (user?.email?.split('@')[0] || 'User')},</span>
                                 <button
                                     onClick={logout}
                                     className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"

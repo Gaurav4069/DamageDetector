@@ -17,6 +17,8 @@ from email_validator import validate_email, EmailNotValidError
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from datetime import timedelta, datetime
+from bson import json_util
+import json
 
 from utils.preprocess import preprocess_image
 from utils.cost_estimator import estimate_repair_cost
@@ -25,8 +27,8 @@ from utils.gemini_helper import generate_repair_suggestions, generate_analytics_
 from damage_extractor_api import DamageExtractorAPI
 
 app = Flask(__name__)
-# Enable CORS for all domains on all routes, supporting credentials
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+# Enable CORS for all domains to prevent cross-origin issues across typical vite dev ports
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Database & Auth Config
 app.config["MONGO_URI"] = os.getenv("MONGO_URI", "mongodb://localhost:27017/damage_detector")
@@ -444,7 +446,7 @@ def get_history():
             record["_id"] = str(record["_id"])
             history_list.append(record)
             
-        return jsonify(history_list), 200
+        return jsonify(json.loads(json_util.dumps(history_list))), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -486,12 +488,12 @@ def get_analytics():
             "average_cost": [{"avg_value": 0}]
         }
         
-        # Format response
+        # Format response safely avoiding index errors
         stats = {
-            "total_assessments": results["total_assessments"][0]["count"] if results.get("total_assessments") else 0,
+            "total_assessments": results["total_assessments"][0]["count"] if results.get("total_assessments") and len(results["total_assessments"]) > 0 else 0,
             "car_type_distribution": {item["_id"]: item["count"] for item in results.get("car_type_distribution", [])},
             "severity_distribution": {item["_id"]: item["count"] for item in results.get("severity_distribution", [])},
-            "average_cost": round(results["average_cost"][0]["avg_value"], 2) if results.get("average_cost") and results["average_cost"][0].get("avg_value") else 0
+            "average_cost": round(results["average_cost"][0]["avg_value"], 2) if results.get("average_cost") and len(results["average_cost"]) > 0 and results["average_cost"][0].get("avg_value") is not None else 0
         }
 
         return jsonify(stats), 200
@@ -533,12 +535,12 @@ def get_analytics_summary():
             "average_cost": [{"avg_value": 0}]
         }
         
-        # Format stats for AI
+        # Format stats for AI safely
         stats = {
-            "total_assessments": results["total_assessments"][0]["count"] if results.get("total_assessments") else 0,
+            "total_assessments": results["total_assessments"][0]["count"] if results.get("total_assessments") and len(results["total_assessments"]) > 0 else 0,
             "car_type_distribution": {item["_id"]: item["count"] for item in results.get("car_type_distribution", [])},
             "severity_distribution": {item["_id"]: item["count"] for item in results.get("severity_distribution", [])},
-            "average_cost": round(results["average_cost"][0]["avg_value"], 2) if results.get("average_cost") and results["average_cost"][0].get("avg_value") else 0
+            "average_cost": round(results["average_cost"][0]["avg_value"], 2) if results.get("average_cost") and len(results["average_cost"]) > 0 and results["average_cost"][0].get("avg_value") is not None else 0
         }
 
         # Generate Summary

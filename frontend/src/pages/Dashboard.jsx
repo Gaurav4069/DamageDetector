@@ -102,13 +102,13 @@ const Dashboard = () => {
                                 onClick={() => navigateToDetail('/history')}
                                 className="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-4 py-2 rounded-md font-medium transition-colors shadow-sm flex items-center justify-center gap-2 dark:bg-indigo-900 dark:text-indigo-200 dark:hover:bg-indigo-800 w-full sm:w-auto"
                             >
-                                <span>📜</span> View History
+                                View History
                             </button>
                             <button
                                 onClick={() => navigateToDetail('/summary')}
                                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-medium transition-colors shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto"
                             >
-                                <span>📋</span> View Full Summary
+                                View Full Summary
                             </button>
                             <button
                                 onClick={handleReset}

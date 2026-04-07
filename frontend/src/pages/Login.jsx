@@ -1,177 +1,181 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react';
+import AuthLayout from '../components/AuthLayout';
+import { API_BASE_URL } from '../utils/constants';
+import { motion } from 'framer-motion';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         setLoading(true);
-
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', {
-                email,
-                password
-            });
-            login(res.data.user, res.data.token);
-            toast.success('Welcome back! 🚗');
+            await login(email, password);
             navigate('/dashboard');
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to login');
+            setError(err.response?.data?.error || err.response?.data?.message || 'Failed to login');
         } finally {
             setLoading(false);
         }
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
-        setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/google', {
-                token: credentialResponse.credential
+            setLoading(true);
+            const res = await fetch(`${API_BASE_URL}/auth/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: credentialResponse.credential }),
             });
-            login(res.data.user, res.data.token);
-            toast.success('Logged in with Google! 🚗');
-            navigate('/dashboard');
+            const data = await res.json();
+            if (res.ok) {
+                login(data.user, data.token);
+                navigate('/dashboard');
+            } else {
+                setError(data.error || data.message || 'Google login failed');
+            }
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Google Login Failed');
+            setError('Google login failed');
         } finally {
             setLoading(false);
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 15 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { type: "spring", stiffness: 300, damping: 24 }
+        }
+    };
+
     return (
-        <div className="min-h-screen flex bg-white dark:bg-gray-900 transition-colors">
-            {/* Left Side - Form */}
-            <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-                <div className="mx-auto w-full max-w-sm lg:w-96">
-                    <div>
-                        <Link to="/" className="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400 tracking-tighter">
-                            DamageDetector
-                        </Link>
-                        <h2 className="mt-6 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white">
-                            Welcome back
-                        </h2>
-                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                            Please sign in to access your dashboard.
-                        </p>
+        <AuthLayout title="Welcome Back" subtitle="Enter your details below">
+            
+            <motion.div
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: error ? 1 : 0, height: error ? 'auto' : 0, marginBottom: error ? 16 : 0 }}
+                className="overflow-hidden"
+            >
+                {error && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm font-semibold flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                        {error}
                     </div>
+                )}
+            </motion.div>
 
-                    <div className="mt-8">
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Email address
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Password
-                                </label>
-                                <div className="mt-1">
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className={`w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all ${loading ? 'opacity-75 cursor-not-allowed' : 'hover:shadow-lg'}`}
-                                >
-                                    {loading ? 'Signing in...' : 'Sign in'}
-                                </button>
-                            </div>
-                        </form>
-
-                        <div className="mt-6">
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                                        Or continue with
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 flex justify-center">
-                                <GoogleLogin
-                                    onSuccess={handleGoogleSuccess}
-                                    onError={() => {
-                                        toast.error('Google Login Failed');
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mt-6">
-                            <div className="relative">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-300 dark:border-gray-600" />
-                                </div>
-                                <div className="relative flex justify-center text-sm">
-                                    <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                                        Don't have an account?
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 text-center">
-                                <Link to="/register" className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300">
-                                    Create a free account
-                                </Link>
-                            </div>
-                        </div>
+            <motion.form
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                onSubmit={handleSubmit}
+                className="space-y-4"
+            >
+                <motion.div variants={itemVariants}>
+                    <div className="relative group">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" strokeWidth={2.5}/>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="block w-full pl-11 pr-4 py-3.5 bg-[#F8FAFC] border-none rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-semibold text-[13px]"
+                            placeholder="Email or Username"
+                            required
+                        />
                     </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants}>
+                    <div className="relative group">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 pointer-events-none" strokeWidth={2.5} />
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="block w-full pl-11 pr-12 py-3.5 bg-[#F8FAFC] border-none rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all font-semibold text-[13px]"
+                            placeholder="Password"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none p-1 rounded-full transition-colors"
+                        >
+                            {showPassword ? <EyeOff className="w-4 h-4" strokeWidth={2.5}/> : <Eye className="w-4 h-4" strokeWidth={2.5} />}
+                        </button>
+                    </div>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="flex justify-end mt-2 mb-6">
+                    <a href="#" className="text-[12px] font-bold text-slate-500 hover:text-blue-600 transition-colors">Forgot password?</a>
+                </motion.div>
+
+                <motion.button
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    type="submit"
+                    disabled={loading}
+                    className="w-full flex justify-center py-3.5 px-6 border border-transparent rounded-xl shadow-md shadow-blue-600/20 text-[14px] font-bold text-white bg-[#3B82F6] hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all"
+                >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'}
+                </motion.button>
+            </motion.form>
+
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="mt-8 relative mb-8"
+            >
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-100"></div>
                 </div>
-            </div>
+                <div className="relative flex justify-center text-xs">
+                    <span className="px-4 bg-white text-slate-400 font-semibold">Or continue with</span>
+                </div>
+            </motion.div>
 
-            {/* Right Side - Image */}
-            <div className="hidden lg:block relative w-0 flex-1">
-                <img
-                    className="absolute inset-0 h-full w-full object-cover"
-                    src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
-                    alt="Luxury Car"
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="flex justify-center"
+            >
+                <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google Login Failed')}
+                    shape="pill"
+                    size="large"
+                    text="continue_with"
+                    width="280"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-20">
-                    <div>
-                        <h3 className="text-white text-4xl font-bold">AI-Powered Analysis</h3>
-                        <p className="text-gray-200 mt-4 text-lg">
-                            Get instant, professional-grade damage assessment for any vehicle using our advanced machine learning models.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+            </motion.div>
+        </AuthLayout>
     );
 };
 
