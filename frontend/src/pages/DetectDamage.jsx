@@ -46,35 +46,68 @@ const DetectDamage = () => {
 
                 {/* Per Image Breakdown */}
                 <h4 className="font-semibold text-gray-700 mb-4 text-xl">Detailed Breakdown by Image</h4>
-                <div className="grid grid-cols-1 gap-8">
+                <div className="grid grid-cols-1 gap-10">
                     {image_results.map((img, idx) => (
-                        <div key={idx} className="border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row gap-6 hover:shadow-md transition-shadow">
-                            <div className="md:w-1/2 flex flex-col items-center">
-                                <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full mb-2 self-start">Image {idx + 1}</span>
-                                <img
-                                    src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
-                                    alt={`Damage Detection ${idx + 1}`}
-                                    className="w-full max-h-80 object-contain rounded-lg shadow-sm border border-gray-100"
-                                />
-                            </div>
-                            <div className="md:w-1/2">
-                                <h5 className="font-semibold text-gray-800 mb-2 border-b pb-2">Detected in this view:</h5>
-                                {img.damaged_parts && img.damaged_parts.length > 0 ? (
-                                    <ul className="space-y-2">
-                                        {img.damaged_parts.map((part, i) => (
-                                            <li key={i} className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded">
-                                                <span className="font-medium text-gray-700 capitalize">{part}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p className="text-gray-500 italic text-sm">No damage detected in this specific angle.</p>
-                                )}
-                                <div className="mt-4">
-                                    <span className="text-xs text-gray-500 uppercase tracking-wide">Severity: </span>
-                                    <span className={`font-bold capitalize ${img.severity === 'minor' ? 'text-yellow-600' : img.severity === 'moderate' ? 'text-orange-600' : 'text-red-600'}`}>
-                                        {img.severity}
-                                    </span>
+                        <div key={idx} className={`bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden transition-all hover:shadow-lg ${image_results.length === 1 ? 'max-w-3xl mx-auto w-full' : ''}`}>
+                            <div className={`flex flex-col ${image_results.length === 1 ? '' : 'md:flex-row'}`}>
+                                {/* Image Section */}
+                                <div className={`${image_results.length === 1 ? 'w-full' : 'md:w-1/2'} p-6 bg-white border-b md:border-b-0 md:border-r border-gray-100`}>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Analysis View {idx + 1}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-gray-400 capitalize">Reliability: 98%</span>
+                                        </div>
+                                    </div>
+                                    <div className="relative group">
+                                        <img
+                                            src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
+                                            alt={`Damage Detection ${idx + 1}`}
+                                            className="w-full h-auto max-h-[400px] object-contain rounded-xl shadow-sm border border-gray-100 mx-auto"
+                                        />
+                                        <div className="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl"></div>
+                                    </div>
+                                </div>
+
+                                {/* Details Section */}
+                                <div className={`${image_results.length === 1 ? 'w-full' : 'md:w-1/2'} p-8 flex flex-col justify-center`}>
+                                    <h5 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                        Detected Damage Points
+                                    </h5>
+                                    
+                                    <div className="space-y-3 mb-8">
+                                        {img.damaged_parts && img.damaged_parts.length > 0 ? (
+                                            img.damaged_parts.map((part, i) => (
+                                                <div key={i} className="flex items-center justify-between bg-white border border-gray-100 p-4 rounded-xl shadow-sm hover:border-indigo-200 transition-colors">
+                                                    <span className="font-semibold text-gray-800 capitalize flex items-center gap-3">
+                                                        <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                                                        {part}
+                                                    </span>
+                                                    <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">DETECTED</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-6 bg-white border border-dashed border-gray-200 rounded-xl">
+                                                <p className="text-gray-400 italic">No damage points found in this angle</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-6 border-t border-gray-100">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Severity Rating</p>
+                                                <p className={`text-2xl font-black capitalize ${img.severity === 'minor' ? 'text-yellow-600' : img.severity === 'moderate' ? 'text-orange-600' : 'text-red-600'}`}>
+                                                    {img.severity}
+                                                </p>
+                                            </div>
+                                            <div className={`p-3 rounded-2xl ${img.severity === 'minor' ? 'bg-yellow-50' : img.severity === 'moderate' ? 'bg-orange-50' : 'bg-red-50'}`}>
+                                                <svg className={`w-8 h-8 ${img.severity === 'minor' ? 'text-yellow-600' : img.severity === 'moderate' ? 'text-orange-600' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -28,17 +28,24 @@ const DetectCar = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg text-center animate-fade-in-up mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Consensus: <span className="text-blue-600 capitalize">{car_type}</span></h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className={`grid gap-6 ${image_results.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
                     {image_results.map((img, index) => (
-                        <div key={index} className="bg-gray-50 p-4 rounded-lg border border-gray-200 flex flex-col items-center">
-                            <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full mb-2">Image {index + 1}</span>
-                            <img
-                                src={img.original_url?.replace('http://localhost:5000', '')}
-                                alt={`Analyzed Car ${index + 1}`}
-                                className="w-full h-48 object-cover rounded-md shadow-sm mb-3"
-                            />
-                            <p className="text-gray-500 text-sm">Detected:</p>
-                            <p className="text-xl font-bold text-gray-800 capitalize">{img.car_type}</p>
+                        <div key={index} className="bg-gray-50 p-6 rounded-xl border border-gray-200 flex flex-col items-center transition-all hover:shadow-md">
+                            <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-3 self-start">Image {index + 1}</span>
+                            <div className="w-full aspect-video mb-4 overflow-hidden rounded-lg shadow-inner bg-gray-100 border border-gray-200">
+                                <img
+                                    src={img.original_url?.replace('http://localhost:5000', '')}
+                                    alt={`Analyzed Car ${index + 1}`}
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+                            <div className="w-full text-left">
+                                <p className="text-gray-500 text-xs uppercase tracking-wider font-bold mb-1">Detected Car Type:</p>
+                                <div className="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-100">
+                                    <p className="text-2xl font-black text-blue-600 capitalize">{img.car_type}</p>
+                                    <span className="text-gray-400 text-sm">Automated Check</span>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

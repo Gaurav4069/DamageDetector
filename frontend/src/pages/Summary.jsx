@@ -53,14 +53,14 @@ const Summary = () => {
                     <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100">
                         <div className="border-b border-gray-100 pb-4 mb-4">
                             <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wide mb-3">Vehicle Images ({image_results?.length || 0})</h3>
-                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                            <div className={`flex gap-4 overflow-x-auto pb-4 scrollbar-hide ${image_results?.length === 1 ? 'justify-center' : ''}`}>
                                 {image_results && image_results.length > 0 ? (
                                     image_results.map((img, idx) => (
-                                        <div key={idx} className="relative group shrink-0">
+                                        <div key={idx} className={`relative group shrink-0 ${image_results.length === 1 ? 'w-48 h-48' : 'w-24 h-24'}`}>
                                             <img
                                                 src={(img.annotated_url || img.original_url)?.replace('http://localhost:5000', '')}
                                                 alt={`View ${idx + 1}`}
-                                                className="w-24 h-24 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                                                className="w-full h-full object-cover rounded-xl border-2 border-gray-100 shadow-sm cursor-pointer hover:border-blue-400 transition-all"
                                                 onClick={() => window.open((img.annotated_url || img.original_url)?.replace('http://localhost:5000', ''), '_blank')}
                                             />
                                             <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-[10px] p-1 rounded-b-lg text-center opacity-0 group-hover:opacity-100 transition-opacity">
